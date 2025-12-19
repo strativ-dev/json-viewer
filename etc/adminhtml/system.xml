@@ -23,6 +23,12 @@
                     <comment>Select the database tables you want to work with</comment>
                     <can_be_empty>1</can_be_empty>
                 </field>
+
+                <field id="table_columns" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Table Columns Configuration</label>
+                    <frontend_model>Strativ\JsonViewer\Block\Adminhtml\Form\Field\TableColumns</frontend_model>
+                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+                </field>
             </group>
         </section>
     </system>
