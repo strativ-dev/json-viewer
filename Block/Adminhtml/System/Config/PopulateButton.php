@@ -1,0 +1,28 @@
+<?php
+namespace Strativ\JsonViewer\Block\Adminhtml\System\Config;
+
+use Magento\Config\Block\System\Config\Form\Field;
+use Magento\Framework\Data\Form\Element\AbstractElement;
+
+class PopulateButton extends Field
+{
+    protected $_template = 'Strativ_JsonViewer::system/config/populate_button.phtml';
+
+    protected function _getElementHtml(AbstractElement $element)
+    {
+        return $this->_toHtml();
+    }
+
+    public function getButtonHtml()
+    {
+        $button = $this->getLayout()->createBlock(
+            \Magento\Backend\Block\Widget\Button::class
+        )->setData([
+            'id' => 'populate_tables_button',
+            'label' => __('Populate Table Columns'),
+            'onclick' => 'javascript:populateTableColumns(); return false;'
+        ]);
+
+        return $button->toHtml();
+    }
+}

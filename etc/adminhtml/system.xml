@@ -24,6 +24,12 @@
                     <can_be_empty>1</can_be_empty>
                 </field>
 
+                <field id="populate_button" translate="label" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Populate Tables</label>
+                    <frontend_model>Strativ\JsonViewer\Block\Adminhtml\System\Config\PopulateButton</frontend_model>
+                    <comment>Click to populate table columns based on selected tables</comment>
+                </field>
+
                 <field id="table_columns" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Table Columns Configuration</label>
                     <frontend_model>Strativ\JsonViewer\Block\Adminhtml\Form\Field\TableColumns</frontend_model>

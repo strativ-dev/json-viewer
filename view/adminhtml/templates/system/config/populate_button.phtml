@@ -1,0 +1,50 @@
+<?php
+/** @var \Strativ\JsonViewer\Block\Adminhtml\System\Config\PopulateButton $block */
+?>
+<div id="populate_tables_container">
+    <?= $block->getButtonHtml() ?>
+</div>
+
+<script type="text/javascript">
+require([
+    'jquery',
+    'Magento_Ui/js/modal/alert'
+], function($, alert) {
+    window.populateTableColumns = function() {
+        var selectedTables = $('#strativ_jsonviewer_general_selected_tables').val();
+        
+        if (!selectedTables || selectedTables.length === 0) {
+            alert({
+                title: 'No Tables Selected',
+                content: 'Please select at least one table from the "Select Database Tables" field.'
+            });
+            return;
+        }
+
+        var tableColumnsContainer = $('#strativ_jsonviewer_general_table_columns');
+        var addButton = tableColumnsContainer.find('button.action-add');
+        
+        tableColumnsContainer.find('tbody tr').each(function() {
+            if (!$(this).hasClass('_template')) {
+                $(this).find('button.action-delete').trigger('click');
+            }
+        });
+
+        for (var i = 0; i < selectedTables.length; i++) {
+            addButton.trigger('click');
+        }
+
+        setTimeout(function() {
+            var rows = tableColumnsContainer.find('tbody tr:not(._template)');
+            selectedTables.forEach(function(tableName, index) {
+                $(rows[index]).find('input[name*="[table_name]"]').val(tableName).trigger('change');
+            });
+            
+            alert({
+                title: 'Success',
+                content: selectedTables.length + ' table(s) have been populated. Please configure the columns for each table.'
+            });
+        }, 200);
+    };
+});
+</script>
