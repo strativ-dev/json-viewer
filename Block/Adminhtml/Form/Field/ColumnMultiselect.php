@@ -31,9 +31,18 @@ class ColumnMultiselect extends \Magento\Framework\View\Element\Html\Select
     {
         $allTablesColumns = $this->tableColumnsSource->getAllTablesColumns();
         
+        if (!$this->getOptions()) {
+            $this->setOptions([]);
+        }
+        
         $this->setClass('admin__control-multiselect');
         $this->setExtraParams('multiple="multiple" data-all-columns=\'' . json_encode($allTablesColumns) . '\'');
         
         return parent::_toHtml();
+    }
+
+    public function calcOptionHash($optionValue)
+    {
+        return sprintf('%u', crc32($this->getName() . $this->getId() . $optionValue));
     }
 }

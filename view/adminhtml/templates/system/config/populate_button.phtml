@@ -49,12 +49,12 @@ require([
     };
 
     // populate table columns
-    $(document).on('change', 'select[name*="[table_name]"]', function() {
-        var selectedTable = $(this).val();
-        var row = $(this).closest('tr');
+    function populateColumnOptions(tableNameSelect) {
+        var selectedTable = $(tableNameSelect).val();
+        var row = $(tableNameSelect).closest('tr');
         var columnMultiselect = row.find('select[name*="[columns]"]');
         
-        if (!columnMultiselect.length) {
+        if (!columnMultiselect.length || !selectedTable) {
             return;
         }
 
@@ -68,6 +68,9 @@ require([
             var tableColumns = allColumns[selectedTable] || [];
             
             var currentValues = columnMultiselect.val() || [];
+            if (typeof currentValues === 'string') {
+                currentValues = currentValues.split(',');
+            }
             
             columnMultiselect.empty();
             
@@ -82,11 +85,23 @@ require([
                 
                 columnMultiselect.append(option);
             });
-            
-            columnMultiselect.trigger('change');
         } catch (e) {
             console.error('Error parsing columns data:', e);
         }
+    }
+
+    $(document).on('change', 'select[name*="[table_name]"]', function() {
+        populateColumnOptions(this);
     });
+
+    // Initialize existing rows on page load
+    setTimeout(function() {
+        $('#strativ_jsonviewer_general_table_columns tbody tr:not(._template)').each(function() {
+            var tableNameSelect = $(this).find('select[name*="[table_name]"]');
+            if (tableNameSelect.length && tableNameSelect.val()) {
+                populateColumnOptions(tableNameSelect);
+            }
+        });
+    }, 500);
 });
 </script>

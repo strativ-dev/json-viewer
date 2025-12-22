@@ -55,10 +55,24 @@ class TableColumns extends AbstractFieldArray
     protected function _prepareArrayRow(DataObject $row)
     {
         $options = [];
+        
         $tableName = $row->getData('table_name');
         if ($tableName !== null) {
             $options['option_' . $this->getTableNameRenderer()->calcOptionHash($tableName)] = 'selected="selected"';
         }
+        
+        $columns = $row->getData('columns');
+        if ($columns !== null) {
+            if (is_string($columns)) {
+                $columns = explode(',', $columns);
+            }
+            if (is_array($columns)) {
+                foreach ($columns as $column) {
+                    $options['option_' . $this->getColumnMultiselectRenderer()->calcOptionHash($column)] = 'selected="selected"';
+                }
+            }
+        }
+        
         $row->setData('option_extra_attrs', $options);
     }
 }
