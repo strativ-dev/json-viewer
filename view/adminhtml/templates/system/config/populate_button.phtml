@@ -10,6 +10,7 @@ require([
     'jquery',
     'Magento_Ui/js/modal/alert'
 ], function($, alert) {
+    // populate tables
     window.populateTableColumns = function() {
         var selectedTables = $('#strativ_jsonviewer_general_selected_tables').val();
         
@@ -46,5 +47,46 @@ require([
             });
         }, 200);
     };
+
+    // populate table columns
+    $(document).on('change', 'select[name*="[table_name]"]', function() {
+        var selectedTable = $(this).val();
+        var row = $(this).closest('tr');
+        var columnMultiselect = row.find('select[name*="[columns]"]');
+        
+        if (!columnMultiselect.length) {
+            return;
+        }
+
+        var allColumnsData = columnMultiselect.attr('data-all-columns');
+        if (!allColumnsData) {
+            return;
+        }
+
+        try {
+            var allColumns = JSON.parse(allColumnsData);
+            var tableColumns = allColumns[selectedTable] || [];
+            
+            var currentValues = columnMultiselect.val() || [];
+            
+            columnMultiselect.empty();
+            
+            tableColumns.forEach(function(column) {
+                var option = $('<option></option>')
+                    .attr('value', column.value)
+                    .text(column.label);
+                
+                if (currentValues.indexOf(column.value) !== -1) {
+                    option.attr('selected', 'selected');
+                }
+                
+                columnMultiselect.append(option);
+            });
+            
+            columnMultiselect.trigger('change');
+        } catch (e) {
+            console.error('Error parsing columns data:', e);
+        }
+    });
 });
 </script>

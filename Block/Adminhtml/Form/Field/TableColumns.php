@@ -8,6 +8,7 @@ use Magento\Framework\Exception\LocalizedException;
 class TableColumns extends AbstractFieldArray
 {
     private $tableNameRenderer;
+    private $columnMultiselectRenderer;
 
     protected function _prepareToRender()
     {
@@ -19,7 +20,8 @@ class TableColumns extends AbstractFieldArray
         
         $this->addColumn('columns', [
             'label' => __('Columns'),
-            'class' => 'required-entry'
+            'class' => 'required-entry',
+            'renderer' => $this->getColumnMultiselectRenderer()
         ]);
 
         $this->_addAfter = false;
@@ -36,6 +38,18 @@ class TableColumns extends AbstractFieldArray
             );
         }
         return $this->tableNameRenderer;
+    }
+
+    private function getColumnMultiselectRenderer()
+    {
+        if (!$this->columnMultiselectRenderer) {
+            $this->columnMultiselectRenderer = $this->getLayout()->createBlock(
+                ColumnMultiselect::class,
+                '',
+                ['data' => ['is_render_to_js_template' => true]]
+            );
+        }
+        return $this->columnMultiselectRenderer;
     }
 
     protected function _prepareArrayRow(DataObject $row)
