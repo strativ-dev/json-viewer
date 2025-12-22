@@ -10,6 +10,9 @@ require([
     'jquery',
     'Magento_Ui/js/modal/alert'
 ], function($, alert) {
+    // Saved table columns data
+    var savedTableColumnsData = <?= $block->getSavedTableColumns() ?>;
+    
     // populate tables
     window.populateTableColumns = function() {
         var selectedTables = $('#strativ_jsonviewer_general_selected_tables').val();
@@ -49,7 +52,7 @@ require([
     };
 
     // populate table columns
-    function populateColumnOptions(tableNameSelect) {
+    function populateColumnOptions(tableNameSelect, savedColumns) {
         var selectedTable = $(tableNameSelect).val();
         var row = $(tableNameSelect).closest('tr');
         var columnMultiselect = row.find('select[name*="[columns]"]');
@@ -67,9 +70,10 @@ require([
             var allColumns = JSON.parse(allColumnsData);
             var tableColumns = allColumns[selectedTable] || [];
             
-            var currentValues = columnMultiselect.val() || [];
-            if (typeof currentValues === 'string') {
-                currentValues = currentValues.split(',');
+            // Use saved columns if provided, otherwise get current values
+            var selectedValues = savedColumns || columnMultiselect.val() || [];
+            if (!Array.isArray(selectedValues)) {
+                selectedValues = selectedValues ? [selectedValues] : [];
             }
             
             columnMultiselect.empty();
@@ -79,7 +83,7 @@ require([
                     .attr('value', column.value)
                     .text(column.label);
                 
-                if (currentValues.indexOf(column.value) !== -1) {
+                if (selectedValues.indexOf(column.value) !== -1) {
                     option.attr('selected', 'selected');
                 }
                 
@@ -98,8 +102,16 @@ require([
     setTimeout(function() {
         $('#strativ_jsonviewer_general_table_columns tbody tr:not(._template)').each(function() {
             var tableNameSelect = $(this).find('select[name*="[table_name]"]');
+            var rowId = $(this).attr('id');
+            
             if (tableNameSelect.length && tableNameSelect.val()) {
-                populateColumnOptions(tableNameSelect);
+                // Find saved columns for this row
+                var savedColumns = null;
+                if (rowId && savedTableColumnsData[rowId]) {
+                    savedColumns = savedTableColumnsData[rowId].columns;
+                }
+                
+                populateColumnOptions(tableNameSelect, savedColumns);
             }
         });
     }, 500);

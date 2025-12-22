@@ -7,6 +7,7 @@ use Strativ\JsonViewer\Model\Config\Source\TableColumns as TableColumnsSource;
 class ColumnMultiselect extends \Magento\Framework\View\Element\Html\Select
 {
     protected $tableColumnsSource;
+    private $tableName;
 
     public function __construct(
         Context $context,
@@ -19,7 +20,7 @@ class ColumnMultiselect extends \Magento\Framework\View\Element\Html\Select
 
     public function setInputName($value)
     {
-        return $this->setName($value);
+        return $this->setName($value . '[]');
     }
 
     public function setInputId($value)
@@ -27,11 +28,27 @@ class ColumnMultiselect extends \Magento\Framework\View\Element\Html\Select
         return $this->setId($value);
     }
 
+    public function setTableName($tableName)
+    {
+        $this->tableName = $tableName;
+        return $this;
+    }
+
+    public function getTableName()
+    {
+        return $this->tableName;
+    }
+
     protected function _toHtml()
     {
         $allTablesColumns = $this->tableColumnsSource->getAllTablesColumns();
         
-        if (!$this->getOptions()) {
+        // If we have a table name, render its columns as options
+        if ($this->tableName) {
+            $tableColumns = $this->tableColumnsSource->getColumnsForTable($this->tableName);
+            $this->setOptions($tableColumns);
+        } else {
+            // No table selected yet, set empty options
             $this->setOptions([]);
         }
         

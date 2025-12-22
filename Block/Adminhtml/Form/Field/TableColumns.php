@@ -62,13 +62,18 @@ class TableColumns extends AbstractFieldArray
         }
         
         $columns = $row->getData('columns');
-        if ($columns !== null) {
-            if (is_string($columns)) {
-                $columns = explode(',', $columns);
+        if ($columns !== null && !empty($columns)) {
+            if (!is_array($columns)) {
+                $columns = is_string($columns) ? explode(',', $columns) : [$columns];
             }
-            if (is_array($columns)) {
-                foreach ($columns as $column) {
-                    $options['option_' . $this->getColumnMultiselectRenderer()->calcOptionHash($column)] = 'selected="selected"';
+            
+            // Set the table name on the column renderer so it can render the correct options
+            $columnRenderer = $this->getColumnMultiselectRenderer();
+            $columnRenderer->setTableName($tableName);
+            
+            foreach ($columns as $column) {
+                if (!empty($column)) {
+                    $options['option_' . $columnRenderer->calcOptionHash($column)] = 'selected="selected"';
                 }
             }
         }
