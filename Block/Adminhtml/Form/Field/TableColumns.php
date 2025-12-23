@@ -1,4 +1,5 @@
 <?php
+
 namespace Strativ\JsonViewer\Block\Adminhtml\Form\Field;
 
 use Magento\Config\Block\System\Config\Form\Field\FieldArray\AbstractFieldArray;
@@ -7,17 +8,30 @@ use Magento\Framework\Exception\LocalizedException;
 
 class TableColumns extends AbstractFieldArray
 {
-    private $tableNameRenderer;
-    private $columnMultiselectRenderer;
+    /**
+     * @var TableNameColumn|null
+     */
+    private ?TableNameColumn $tableNameRenderer = null;
 
-    protected function _prepareToRender()
+    /**
+     * @var ColumnMultiselect|null
+     */
+    private ?ColumnMultiselect $columnMultiselectRenderer = null;
+
+    /**
+     * Prepare to render the table columns field array
+     *
+     * @return void
+     * @throws LocalizedException
+     */
+    protected function _prepareToRender(): void
     {
         $this->addColumn('table_name', [
             'label' => __('Table Name'),
             'class' => 'required-entry',
             'renderer' => $this->getTableNameRenderer()
         ]);
-        
+
         $this->addColumn('columns', [
             'label' => __('Columns'),
             'class' => 'required-entry',
@@ -28,7 +42,13 @@ class TableColumns extends AbstractFieldArray
         $this->_addButtonLabel = __('Add Table');
     }
 
-    private function getTableNameRenderer()
+    /**
+     * Get the table name renderer block
+     *
+     * @return TableNameColumn
+     * @throws LocalizedException
+     */
+    private function getTableNameRenderer(): TableNameColumn
     {
         if (!$this->tableNameRenderer) {
             $this->tableNameRenderer = $this->getLayout()->createBlock(
@@ -40,7 +60,13 @@ class TableColumns extends AbstractFieldArray
         return $this->tableNameRenderer;
     }
 
-    private function getColumnMultiselectRenderer()
+    /**
+     * Get the column multiselect renderer block
+     *
+     * @return ColumnMultiselect
+     * @throws LocalizedException
+     */
+    private function getColumnMultiselectRenderer(): ColumnMultiselect
     {
         if (!$this->columnMultiselectRenderer) {
             $this->columnMultiselectRenderer = $this->getLayout()->createBlock(
@@ -52,32 +78,39 @@ class TableColumns extends AbstractFieldArray
         return $this->columnMultiselectRenderer;
     }
 
-    protected function _prepareArrayRow(DataObject $row)
+    /**
+     * Prepare each row of the field array
+     *
+     * @param DataObject $row
+     * @return void
+     * @throws LocalizedException
+     */
+    protected function _prepareArrayRow(DataObject $row): void
     {
         $options = [];
-        
+
         $tableName = $row->getData('table_name');
         if ($tableName !== null) {
             $options['option_' . $this->getTableNameRenderer()->calcOptionHash($tableName)] = 'selected="selected"';
         }
-        
+
         $columns = $row->getData('columns');
-        if ($columns !== null && !empty($columns)) {
+        if (!empty($columns)) {
             if (!is_array($columns)) {
                 $columns = is_string($columns) ? explode(',', $columns) : [$columns];
             }
-            
+
             // Set the table name on the column renderer so it can render the correct options
             $columnRenderer = $this->getColumnMultiselectRenderer();
             $columnRenderer->setTableName($tableName);
-            
+
             foreach ($columns as $column) {
                 if (!empty($column)) {
                     $options['option_' . $columnRenderer->calcOptionHash($column)] = 'selected="selected"';
                 }
             }
         }
-        
+
         $row->setData('option_extra_attrs', $options);
     }
 }

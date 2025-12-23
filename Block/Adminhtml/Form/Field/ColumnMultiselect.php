@@ -3,7 +3,6 @@
 namespace Strativ\JsonViewer\Block\Adminhtml\Form\Field;
 
 use Magento\Framework\View\Element\Context;
-use Magento\Tests\NamingConvention\true\string;
 use Strativ\JsonViewer\Model\Config\Source\TableColumns as TableColumnsSource;
 use Magento\Framework\View\Element\Html\Select;
 
@@ -25,8 +24,7 @@ class ColumnMultiselect extends Select
         Context            $context,
         TableColumnsSource $tableColumnsSource,
         array              $data = []
-    )
-    {
+    ) {
         parent::__construct($context, $data);
         $this->tableColumnsSource = $tableColumnsSource;
     }
