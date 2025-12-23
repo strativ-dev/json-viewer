@@ -3,6 +3,7 @@
 namespace Strativ\JsonViewer\Block\Adminhtml\Form\Field;
 
 use Magento\Framework\View\Element\Context;
+use Magento\Tests\NamingConvention\true\string;
 use Strativ\JsonViewer\Model\Config\Source\TableColumns as TableColumnsSource;
 use Magento\Framework\View\Element\Html\Select;
 
@@ -47,7 +48,7 @@ class ColumnMultiselect extends Select
      * @param string $tableName
      * @return $this
      */
-    public function setTableName($tableName): self
+    public function setTableName(string $tableName): self
     {
         $this->tableName = $tableName;
         return $this;
