@@ -1,0 +1,63 @@
+<script type="text/javascript">
+require([
+    'jquery',
+    'Magento_Ui/js/modal/modal'
+], function($, modal) {
+    window.showJsonModal = function(elementId) {
+        var jsonContent = $('#' + elementId).text();
+        
+        var modalHtml = '<div id="json-modal-content" class="json-modal-container">' +
+            '<div style="background: #f5f5f5; padding: 20px; border-radius: 4px;">' +
+            '<pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word; max-height: 600px; overflow: auto; font-family: monospace; font-size: 13px; line-height: 1.5;">' +
+            jsonContent +
+            '</pre>' +
+            '</div>' +
+            '</div>';
+        
+        var $modal = $(modalHtml);
+        
+        var options = {
+            type: 'popup',
+            responsive: true,
+            innerScroll: true,
+            title: 'JSON Viewer',
+            modalClass: 'json-viewer-modal',
+            buttons: [{
+                text: $.mage.__('Copy to Clipboard'),
+                class: 'action-primary',
+                click: function() {
+                    var textarea = document.createElement('textarea');
+                    textarea.value = jsonContent;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    alert('JSON copied to clipboard!');
+                }
+            }, {
+                text: $.mage.__('Close'),
+                class: 'action-secondary',
+                click: function() {
+                    this.closeModal();
+                }
+            }]
+        };
+        
+        modal(options, $modal);
+        $modal.modal('openModal');
+    };
+});
+</script>
+
+<style>
+.json-viewer-modal {
+    max-width: 90%;
+    width: 800px;
+}
+.json-viewer-modal .modal-inner-wrap {
+    max-height: 90vh;
+}
+.json-modal-container {
+    padding: 10px;
+}
+</style>

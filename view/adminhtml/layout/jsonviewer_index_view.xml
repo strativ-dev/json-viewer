@@ -6,6 +6,7 @@
             <block class="Strativ\JsonViewer\Block\Adminhtml\View" name="jsonviewer.view.grid.container">
                 <block class="Strativ\JsonViewer\Block\Adminhtml\View\Grid" name="jsonviewer.view.grid" as="grid"/>
             </block>
+            <block class="Magento\Backend\Block\Template" name="jsonviewer.json.modal" template="Strativ_JsonViewer::view/json_modal.phtml"/>
         </referenceContainer>
     </body>
 </page>

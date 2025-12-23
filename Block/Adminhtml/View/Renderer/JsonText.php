@@ -17,19 +17,21 @@ class JsonText extends AbstractRenderer
         if ($this->isJson($value)) {
             $decoded = json_decode($value, true);
             if ($decoded !== null) {
-                return '<pre style="max-width: 400px; overflow: auto; white-space: pre-wrap;">' 
-                    . htmlspecialchars(json_encode($decoded, JSON_PRETTY_PRINT)) 
-                    . '</pre>';
+                $formattedJson = json_encode($decoded, JSON_PRETTY_PRINT);
+                $escapedJson = htmlspecialchars($formattedJson);
+                $uniqueId = 'json_' . md5($value . rand());
+                
+                return '<button type="button" class="action-default scalable" '
+                    . 'onclick="showJsonModal(\'' . $uniqueId . '\')" '
+                    . 'style="padding: 5px 10px;">'
+                    . '<span>View JSON</span>'
+                    . '</button>'
+                    . '<div id="' . $uniqueId . '" style="display:none;">' . $escapedJson . '</div>';
             }
         }
 
-        if (strlen($value) > 100) {
-            return '<div style="max-width: 400px; overflow: auto; word-wrap: break-word;">' 
-                . htmlspecialchars($value) 
-                . '</div>';
-        }
-
-        return htmlspecialchars($value);
+        $displayText = strlen($value) > 25 ? substr($value, 0, 25) . '...' : $value;
+        return '<span>' . htmlspecialchars($displayText) . '</span>';
     }
 
     protected function isJson($string)
