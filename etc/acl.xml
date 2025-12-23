@@ -11,6 +11,11 @@
                         </resource>
                     </resource>
                 </resource>
+                <resource id="Magento_Backend::system">
+                    <resource id="Strativ_JsonViewer::strativ" title="Strativ" translate="title" sortOrder="100">
+                        <resource id="Strativ_JsonViewer::jsonviewer" title="Json Viewer" translate="title" sortOrder="10"/>
+                    </resource>
+                </resource>
             </resource>
         </resources>
     </acl>

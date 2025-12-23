@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Strativ_JsonViewer::strativ" title="Strativ" module="Strativ_JsonViewer" sortOrder="100" parent="Magento_Backend::system" resource="Strativ_JsonViewer::config"/>
+        <add id="Strativ_JsonViewer::jsonviewer" title="Json Viewer" module="Strativ_JsonViewer" sortOrder="10" parent="Strativ_JsonViewer::strativ" action="jsonviewer/index/index" resource="Strativ_JsonViewer::jsonviewer"/>
+    </menu>
+</config>
