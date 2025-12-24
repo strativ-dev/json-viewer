@@ -1,16 +1,30 @@
 <?php
+
 namespace Strativ\JsonViewer\Model\TableConfig;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Collection;
 use Magento\Framework\DataObject;
 use Magento\Framework\Data\Collection\EntityFactoryInterface;
+use Magento\Ui\DataProvider\AbstractDataProvider;
+use Magento\Store\Model\ScopeInterface;
 
-class DataProvider extends \Magento\Ui\DataProvider\AbstractDataProvider
+class DataProvider extends AbstractDataProvider
 {
-    protected $scopeConfig;
-    protected $entityFactory;
+    /** @var ScopeConfigInterface */
+    protected ScopeConfigInterface $scopeConfig;
+    /** @var EntityFactoryInterface */
+    protected EntityFactoryInterface $entityFactory;
 
+    /**
+     * @param string $name
+     * @param string $primaryFieldName
+     * @param string $requestFieldName
+     * @param ScopeConfigInterface $scopeConfig
+     * @param EntityFactoryInterface $entityFactory
+     * @param array $meta
+     * @param array $data
+     */
     public function __construct(
         $name,
         $primaryFieldName,
@@ -27,11 +41,14 @@ class DataProvider extends \Magento\Ui\DataProvider\AbstractDataProvider
         $this->prepareData();
     }
 
-    protected function prepareData()
+    /**
+     * Prepare data collection from saved configuration
+     */
+    protected function prepareData(): void
     {
         $savedData = $this->scopeConfig->getValue(
             'strativ_jsonviewer/general/table_columns',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_STORE
         );
 
         if ($savedData) {
@@ -39,10 +56,10 @@ class DataProvider extends \Magento\Ui\DataProvider\AbstractDataProvider
             if (is_array($data)) {
                 $index = 1;
                 foreach ($data as $rowId => $item) {
-                    $columns = isset($item['columns']) && is_array($item['columns']) 
-                        ? implode(', ', $item['columns']) 
+                    $columns = isset($item['columns']) && is_array($item['columns'])
+                        ? implode(', ', $item['columns'])
                         : '';
-                    
+
                     $this->collection->addItem(new DataObject([
                         'id' => $rowId,
                         'index' => $index++,
@@ -54,7 +71,12 @@ class DataProvider extends \Magento\Ui\DataProvider\AbstractDataProvider
         }
     }
 
-    public function getData()
+    /**
+     * Get data for UI component
+     *
+     * @return array
+     */
+    public function getData(): array
     {
         $items = [];
         foreach ($this->getCollection() as $item) {
