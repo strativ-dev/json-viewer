@@ -1,21 +1,41 @@
 <?php
+
 namespace Strativ\JsonViewer\Model\TableData;
 
+use Exception;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Data\Collection;
 use Magento\Framework\DataObject;
 use Magento\Framework\Data\Collection\EntityFactoryInterface;
+use Magento\Ui\DataProvider\AbstractDataProvider;
+use Magento\Store\Model\ScopeInterface;
 
-class DataProvider extends \Magento\Ui\DataProvider\AbstractDataProvider
+class DataProvider extends AbstractDataProvider
 {
-    protected $scopeConfig;
-    protected $entityFactory;
-    protected $request;
-    protected $resourceConnection;
-    protected $tableConfig;
+    /** @var ScopeConfigInterface */
+    protected ScopeConfigInterface $scopeConfig;
+    /** @var EntityFactoryInterface */
+    protected EntityFactoryInterface $entityFactory;
+    /** @var RequestInterface */
+    protected RequestInterface $request;
+    /** @var ResourceConnection */
+    protected ResourceConnection $resourceConnection;
+    /** @var array|null */
+    protected ?array $tableConfig;
 
+    /**
+     * @param string $name
+     * @param string $primaryFieldName
+     * @param string $requestFieldName
+     * @param EntityFactoryInterface $entityFactory
+     * @param ScopeConfigInterface $scopeConfig
+     * @param RequestInterface $request
+     * @param ResourceConnection $resourceConnection
+     * @param array $meta
+     * @param array $data
+     */
     public function __construct(
         $name,
         $primaryFieldName,
@@ -36,7 +56,12 @@ class DataProvider extends \Magento\Ui\DataProvider\AbstractDataProvider
         $this->prepareData();
     }
 
-    protected function getTableConfig()
+    /**
+     * Retrieve table configuration based on request parameter 'id'
+     *
+     * @return array|null
+     */
+    protected function getTableConfig(): ?array
     {
         if ($this->tableConfig !== null) {
             return $this->tableConfig;
@@ -49,7 +74,7 @@ class DataProvider extends \Magento\Ui\DataProvider\AbstractDataProvider
 
         $savedData = $this->scopeConfig->getValue(
             'strativ_jsonviewer/general/table_columns',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_STORE
         );
 
         if ($savedData) {
@@ -63,49 +88,86 @@ class DataProvider extends \Magento\Ui\DataProvider\AbstractDataProvider
         return null;
     }
 
-    protected function prepareData()
+    /**
+     * Prepare data collection based on the table configuration
+     */
+    protected function prepareData(): void
     {
         $config = $this->getTableConfig();
-        
-        if (!$config || !isset($config['table_name']) || !isset($config['columns'])) {
-            return;
-        }
 
-        $tableName = $config['table_name'];
-        $columns = $config['columns'];
-
-        if (empty($columns) || !is_array($columns)) {
+        if (!$this->isValidConfig($config)) {
             return;
         }
 
         try {
-            $connection = $this->resourceConnection->getConnection();
-            
-            $select = $connection->select()
-                ->from($tableName, $columns);
-
-            $rows = $connection->fetchAll($select);
-
-            foreach ($rows as $row) {
-                $hasTextOrJson = false;
-                
-                foreach ($row as $value) {
-                    if (!empty($value) && is_string($value)) {
-                        $hasTextOrJson = true;
-                        break;
-                    }
-                }
-
-                if ($hasTextOrJson) {
-                    $this->collection->addItem(new DataObject($row));
-                }
-            }
-        } catch (\Exception $e) {
+            $this->loadTableData($config['table_name'], $config['columns']);
+        } catch (Exception $e) {
             return;
         }
     }
 
-    public function getData()
+    /**
+     * Validate table configuration
+     *
+     * @param array|null $config
+     * @return bool
+     */
+    protected function isValidConfig(?array $config): bool
+    {
+        if (!$config || !isset($config['table_name']) || !isset($config['columns'])) {
+            return false;
+        }
+
+        $columns = $config['columns'];
+        return !empty($columns) && is_array($columns);
+    }
+
+    /**
+     * Load table data into collection
+     *
+     * @param string $tableName
+     * @param array $columns
+     * @return void
+     * @throws Exception
+     */
+    protected function loadTableData(string $tableName, array $columns): void
+    {
+        $connection = $this->resourceConnection->getConnection();
+
+        $select = $connection->select()
+            ->from($tableName, $columns);
+
+        $rows = $connection->fetchAll($select);
+
+        foreach ($rows as $row) {
+            if ($this->hasStringValue($row)) {
+                $this->collection->addItem(new DataObject($row));
+            }
+        }
+    }
+
+    /**
+     * Check if row contains any string value
+     *
+     * @param array $row
+     * @return bool
+     */
+    protected function hasStringValue(array $row): bool
+    {
+        foreach ($row as $value) {
+            if (!empty($value) && is_string($value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Get data for the UI component
+     *
+     * @return array
+     */
+    public function getData(): array
     {
         $items = [];
         foreach ($this->getCollection() as $item) {
@@ -118,17 +180,22 @@ class DataProvider extends \Magento\Ui\DataProvider\AbstractDataProvider
         ];
     }
 
-    public function getMeta()
+    /**
+     * Get meta configuration for the UI component
+     *
+     * @return array
+     */
+    public function getMeta(): array
     {
         $meta = parent::getMeta();
         $config = $this->getTableConfig();
-        
+
         if (!$config || !isset($config['columns'])) {
             return $meta;
         }
 
         $columns = $config['columns'];
-        
+
         foreach ($columns as $columnName) {
             $meta['jsonviewer_view_columns']['children'][$columnName] = [
                 'arguments' => [
