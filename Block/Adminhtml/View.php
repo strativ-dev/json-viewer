@@ -5,7 +5,10 @@ use Magento\Backend\Block\Widget\Grid\Container;
 
 class View extends Container
 {
-    protected function _construct()
+    /**
+     * Initialize View Container
+     */
+    protected function _construct(): void
     {
         $this->_controller = 'adminhtml_view';
         $this->_blockGroup = 'Strativ_JsonViewer';
